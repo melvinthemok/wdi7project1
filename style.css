@@ -1,0 +1,65 @@
+body {
+  background-color: black;
+}
+
+#game {
+  display: flex;
+  flex-flow: column wrap;
+  align-items: center;
+}
+
+#msgboard {
+  color: white;
+  font-family: 'Press Start 2P', cursive;
+  text-align: center;
+}
+
+#title {
+  font-size: 5vmin;
+  margin:0.5em;
+}
+
+#gamestatus {
+  font-size: 3vmin;
+}
+
+#gameCourt {
+  height:70vh;
+  width: 60vw;
+  background-color: white;
+  border: 1em solid black;
+  padding: 4px;
+  position: relative;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+#net {
+  height: 70vh;
+  width: 1px;
+  background-color: rgba(0,0,0,0.5);
+  position: absolute;
+}
+
+.sprite {
+  width: 50px;
+  height: 46px;
+  border: 1px solid black;
+  /*border-radius: 50%;*/
+  background-image: url(./spriteImage/allcups-resized-trans2.png);
+  position: absolute;
+}
+
+.paddlespace {
+  height:100%;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#paddle1, #paddle2 {
+  height: 10vh;
+  width: 1vw;
+  background-color: black;
+}
