@@ -53,52 +53,47 @@ $(document).keydown(function(e) {
     }
   } else if (keycode === 32) { // space bar
     reset()
+    // disable this event listener until game ends to prevent having two balls on the screen
   }
 })
 
-// sprite batches
+// for paddle bounce
+if ()
+
+
+
+// sprite catridge...
 var sprites = [];
 var spriteCount = 0;
+console.log('Sprite count at start of game: ' + spriteCount);
 
-// timer and stats --> perhaps i can get rid of this...
-var currentTimestamp = new Date().getTime();
-var previousTimestamp = 0;
-var framesThisSecond = 0;
-var elapsedMs = 0;
-var currentFPS = 60;
-
-// ensure that we have requestAnimationFrame which runs the animation only when the window is active. Below is from Paul Irish's compatibility shim
+// 60fps may be a bit too high for this game. when you have time, mess with this.
+// refactor based on: http://creativejs.com/resources/requestanimationframe/
+// extra reference: https://css-tricks.com/using-requestanimationframe/
+//below is an inbuilt polyfill method which runs the animation only when the window is active.
 if (!window.requestAnimationFrame)
 {
-  window.requestAnimationFrame = (function()
+  window.requestAnimationFrame = (function ()
   {
     return window.webkitRequestAnimationFrame ||
     window.mozRequestAnimationFrame ||
     window.oRequestAnimationFrame ||
     window.msRequestAnimationFrame ||
-    function(callback,element)
+    function (callback, element)
     {
       window.setTimeout(callback, 1000 / 60);
     };
-  })();
+  })()// why extra pair of parenthesis needed here?
 }
-
-// this cross checks the current FPS.
-// function checkFPS() {
-//   framesThisSecond++;
-//   previousTimestamp = currentTimestamp;
-//   currentTimestamp = new Date().getTime();
-//   elapsedMs += currentTimestamp - previousTimestamp;
-//   currentFPS = 1000 / (currentTimestamp - previousTimestamp); // only update once per second
-// }
 
 // removes sprite from DOM element once it exits frameWidth
 function destroySprite() {
-	if (!this) { // just a check that it's refering to the item created
+	if (!this) { // check that it's refering to the item created
     return
-  } else {
+  } else
+    console.log('destroySprite called');
 	  this.parent.removeChild(this.element)
-  }
+
 }
 
 // the sprite class - DOM sprite version
@@ -111,17 +106,17 @@ function SpriteCreate(parentElement) {
 	this.element = document.createElement("div"); // create a DOM sprite
 	this.element.className = 'sprite';
 	this.style = this.element.style; // points it towards css .sprite style
-	// starting position from center of net. previous results are not stored.
+	// starting position at center of net
   this.x = frameWidth/2 - spritesheetFrameWidth/2
-  this.y = frameHeight/2 - Math.round(spritesheetFrameHeight/1.5) // this.ANGLE ==> an addition to determine the angle the ball will be launched
+  this.y = frameHeight/2 - Math.round(spritesheetFrameHeight/1.5)
   this.reposition();
-	// give new sprite a random speed
-	this.xSpeed = Math.round(Math.random() * 10 + 1) * randomDir()  //
-	this.ySpeed = Math.round(Math.random() * 10 + 1)
+	// give new sprite a random speed, direction and angle
+	this.xSpeed = Math.round(Math.random() * 8 + 2) * randomDir()
+	this.ySpeed = Math.round(Math.random() * 8 + 2) * randomDir()
 	// random spritesheet frame
 	this.frame(spriteCount);
 	// put it into the game window
-	this.parent.appendChild(this.element); // --> $('<div class="sprite"></div>').append()
+	this.parent.appendChild(this.element); // --> $('<div class="sprite"></div>').appendTo($('#gameCourt'))
 }
 
 // SPRITESHEET: all sprite frames stored in this spritesheet.
@@ -133,8 +128,22 @@ var spritesheetXFrames = spritesheetWidth / spritesheetFrameWidth;
 var spritesheetYFrames = spritesheetHeight / spritesheetFrameHeight;
 var spritesheetFrames = spritesheetXFrames * spritesheetYFrames;
 
+function changeSpriteFrame(num) {
+	if (!this) {
+    return;
+  } else {
+    // $('.sprite').css('background-position', ' (-1 * (num % spritesheetXFrames) * spritesheetFrameWidth) + 'px ' +
+		//(-1 * (Math.round(num / spritesheetXFrames) % spritesheetYFrames))
+		// * spritesheetFrameHeight + 'px'')
+	this.style.backgroundPosition =
+		(-1 * (num % spritesheetXFrames) * spritesheetFrameWidth + 'px ') +
+		(-1 * (Math.round(num / spritesheetXFrames) % spritesheetYFrames))
+		* spritesheetFrameHeight + 'px ';
+  }
+}
+
 // this determines starting position of Sprites and displays the path coordinates ball trajectory...
-function repositionSprite() {
+function repositionSprite () {
 	if (!this) {
     return;
   } else {
@@ -157,65 +166,75 @@ function randomDir () {
   }
 }
 
-// random selection of  sprite image.
-function changeSpriteFrame(num) {
-	if (!this) {
-    return;
-  } else {
-    // $('.sprite').css('background-position', ' (-1 * (num % spritesheetXFrames) * spritesheetFrameWidth) + 'px ' +
-		//(-1 * (Math.round(num / spritesheetXFrames) % spritesheetYFrames))
-		// * spritesheetFrameHeight + 'px'')
-	this.style.backgroundPosition =
-		(-1 * (num % spritesheetXFrames) * spritesheetFrameWidth + 'px ') +
-		(-1 * (Math.round(num / spritesheetXFrames) % spritesheetYFrames))
-		* spritesheetFrameHeight + 'px ';
-  }
-}
-
 function animateSprites() {
   for (var i = 0; i < spriteCount; i++) {
     sprites[i].x += sprites[i].xSpeed // sprite[i].x = x + xSpeed --> continuously until below condition is met
     sprites[i].y += sprites[i].ySpeed // how to clear this function each time?
-	   //--> bounce at top and bottom
+	   // bounce at top and bottom
     if ((sprites[i].y <= (0 + spritesheetFrameHeight / 2)) || (sprites[i].y >= (frameHeight - spritesheetFrameHeight))) {
-  		sprites[i].ySpeed = -1 * sprites[i].ySpeed;
+  		sprites[i].ySpeed = -1 * sprites[i].ySpeed
     }
-    if (sprites[i].x < (0 - spritesheetFrameWidth * 2)) { // Player 2 scores!
-      p2score ++;
-      // isGameOver()
-      sprites[i].x = 0
-      console.log('sprite x coordinate is now' + sprites[i].x);
-      sprites[i].y = 0
-      sprites[spriteCount-1].destroy();
-      spriteCount--;
+    if (sprites[i].x <= (0 - spritesheetFrameWidth * 2)) { // Player 2 scores!
+      sprites[spriteCount-1].destroy()
+      spriteCount--
+      window.cancelAnimationFrame(animationloop) //this stops the animation loop
+      p2score ++
+      isGameOver()
       console.log('sprite left' + spriteCount)
-    } if (sprites[i].x > frameWidth) { // Player 1 scores!
-      p1score++;
-      sprites[i].x = 0
-      sprites[i].y = 0
-      // isGameOver()
-      sprites[spriteCount-1].destroy();
-      spriteCount--;
-      console.log('sprite left' + spriteCount);
+      return
+    } // if sprite > +/- frameWidth
+    if (sprites[i].x >= frameWidth) { // Player 1 scores!
+      sprites[spriteCount-1].destroy()
+      spriteCount--
+      window.cancelAnimationFrame(animationloop)
+      p1score++
+      isGameOver()
+      console.log('sprite left' + spriteCount)
+      return
     } else {
-    sprites[i].reposition() // find out why this happens though...
+      sprites[i].reposition()
     }
   }
 }
 
-  function animate() // --> this is the renderer but we will need to check if game is over.
-  {
-  	requestAnimationFrame(animate);
-  	animateSprites();
+// timer and stats --> perhaps i can get rid of this...
+var currentTimestamp = 0
+var previousTimestamp = Date.now()
+var framesThisSecond = 0; // may not need this variable as it's for status update
+var elapsedMs = 0;
+var currentFPS = 0
+var targetFramerate = 60;
+var animationloop
+
+function checkFPS() {
+  currentTimestamp = Date.now()
+  elaspedMs = currentTimestamp - previousTimestamp
+  targetFramerateInterval = 1000/targetFramerate
+  if ((elaspedMs > targetFramerateInterval)) {
+    previousTimestamp = currentTimestamp - (elaspedMs%targetFramerateInterval)
+    return
+  }
+  if (currentFPS < targetFramerate) {
+    previousTimestamp = currentTimestamp + (elaspedMs%targetFramerateInterval)
+  console.log('target frame rate interval: ' + targetFramerateInterval);
+  console.log('elasped time: ' + elaspedMs);
+  return
+  }
+}
+
+  function animate() {// --> this is the renderer but we will need to check if game is over.
+    checkFPS()
+    animationloop = requestAnimationFrame(animate);
+    animateSprites()
   }
 
 //updates game status as well
 function isGameOver() { // updates message board... this is hard coded ...
-  if (p1score === 8 || p2score === 8) {
-    if (p1score === 8) {
+  if (p1score === 5 || p2score === 5) {
+    if (p1score === 5) {
       $('#gamestatus').text('P1 has won!')
     }
-    if (p2score === 8) {
+    if (p2score === 5) {
       $('#gamestatus').text('P2 has won!')
     }
     return true
@@ -224,8 +243,9 @@ function isGameOver() { // updates message board... this is hard coded ...
   }
 }
 
-function reset() { //
+function reset () {
   if (isGameOver === true) {
+    //deactivate spacebar listener
     return
   } else {
     sprites[spriteCount] = new SpriteCreate()
@@ -236,7 +256,7 @@ function reset() { //
 }
 
 
-// LEVEL 2 OF GAME when either player wins and continues to play, activate this randomizer. SetInterval (maybeAddSprite, )
+// LEVEL 2 OF GAME when either player wins and continues to play, call this function. SetInterval (maybeAddSprite, every 20 secs? )
 function maybeAddSprite () {
     if (randomizer() > 8) {
       sprites[spriteCount] = new SpriteCreate()
@@ -245,6 +265,8 @@ function maybeAddSprite () {
       return false
     }
 }
+
+var minSpriteCount = 40 // utilise this to prevent too many sprites from flooding the screen but or release for crazy mode
 
 // function maybeMoreSprites()  --> do not need this function unless you want to add more...
 // {
