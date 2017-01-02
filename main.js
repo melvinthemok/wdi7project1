@@ -1,21 +1,25 @@
 console.log('JS loaded');
 
 var gameCourt = document.getElementById('gameCourt')
-var paddle1distanceY = 0;
-var paddle1distanceX = frameWidth; // may not need cos display:flex is keeping them in place.
-var paddle2distanceY = 0;
-var paddle2distanceX = -frameWidth; // may not need
-var p1score = 0
-var p2score = 0
 var frameHeight = parseInt($('#gameCourt').css('height')) // jQuery gives height as a string i.e. XYpx. parseInt here would remove everything else
 var frameWidth = parseInt($('#gameCourt').css('width'))
-// var heightLimit = (frameHeight - parseInt($('.sprite').css('height'))) / 2 //subtract ball diameter which has been determined in css.
-// var widthLimit = (frameWidth - parseInt($('.sprite').css('width'))) / 2
-console.log(frameHeight);
-console.log(frameWidth);
+var paddleHeight = parseInt($('#paddle1').css('height'))
+var paddleWidth = parseInt($('#paddle1').css('width'))
+console.log('frameHeight: ' + frameHeight);
+console.log('frameWidth: ' + frameWidth);
+console.log('paddleHeight: '+ paddleHeight);
+console.log('paddleWidth: ' + paddleWidth);
+var paddle1distanceY = 0; // p1y
+var paddle1distanceX = 4; //p1x (need to + paddleWidth to make the contact point on the right side)
+var paddle2distanceY = 0; //p2y
+var paddle2distanceX = (frameWidth - 16);
+var p1score = 0
+var p2score = 0
 
 // dynamic net position
-$('#net').css({'top': 0 , 'left': (frameWidth/2)})
+$('#net').css({'top': 0 , 'left': (frameWidth/2 + 5)})
+$('#paddle1').css({'top': (frameHeight/2 - paddleHeight/2 - 4), 'left': paddle1distanceX})
+$('#paddle2').css({'top': (frameHeight/2 - paddleHeight/2 - 4), 'left': paddle2distanceX})
 
 //paddle controls, condition, start button
 $(document).keydown(function(e) {
@@ -24,43 +28,38 @@ $(document).keydown(function(e) {
     paddle1distanceY -= 30;
     $('#paddle1').css('webkitTransform', 'translate(0px, '+ paddle1distanceY +'px)');
     console.log('paddle1 is moving up ' + paddle1distanceY + 'px');
-    if (paddle1distanceY <= -(frameHeight/2)+ 75) {
-        paddle1distanceY = -(frameHeight/2) + 75
+    if (paddle1distanceY < -(frameHeight/2) + 90) {
+        paddle1distanceY = -(frameHeight/2) + 90
     }
   }
   else if (keycode === 83) { // s key
     paddle1distanceY += 30;
     $('#paddle1').css('webkitTransform', 'translate(0px, '+ paddle1distanceY +'px)');
     console.log('paddle1 is moving down ' + paddle1distanceY  + 'px');
-    if (paddle1distanceY >= (frameHeight/2)- 75) {
-      paddle1distanceY = (frameHeight/2) - 75
+    if (paddle1distanceY > (frameHeight/2) - 90) {
+      paddle1distanceY = (frameHeight/2) - 90
     }
   }
   else if (keycode === 38) { // up arrow key
     paddle2distanceY -= 30;
     $('#paddle2').css('webkitTransform', 'translate(0px, '+ paddle2distanceY +'px)');
     console.log('paddle2 is moving up ' + paddle2distanceY + 'px');
-    if (paddle2distanceY <= -(frameHeight/2) + 75) {
-        paddle2distanceY = -(frameHeight/2) + 75
+    if (paddle2distanceY < -(frameHeight/2) + 90 ) {
+        paddle2distanceY = -(frameHeight/2) + 90
     }
   }
   else if (keycode === 40) { // down arrow key
     paddle2distanceY += 30;
     $('#paddle2').css('webkitTransform', 'translate(0px, '+ paddle2distanceY +'px)')
     console.log('paddle2 is moving down ' + paddle2distanceY + 'px');
-    if (paddle2distanceY >= (frameHeight/2) - 75) {
-        paddle2distanceY = (frameHeight/2) - 75
+    if (paddle2distanceY > (frameHeight/2) - 90) {
+        paddle2distanceY = (frameHeight/2) - 90
     }
   } else if (keycode === 32) { // space bar
     reset()
-    // disable this event listener until game ends to prevent having two balls on the screen
+    // disable this event listener until game ends to prevent user from launching extra balls during play.
   }
 })
-
-// for paddle bounce
-if ()
-
-
 
 // sprite catridge...
 var sprites = [];
@@ -90,10 +89,9 @@ if (!window.requestAnimationFrame)
 function destroySprite() {
 	if (!this) { // check that it's refering to the item created
     return
-  } else
-    console.log('destroySprite called');
-	  this.parent.removeChild(this.element)
-
+  } else {
+  this.parent.removeChild(this.element)
+  }
 }
 
 // the sprite class - DOM sprite version
@@ -107,12 +105,14 @@ function SpriteCreate(parentElement) {
 	this.element.className = 'sprite';
 	this.style = this.element.style; // points it towards css .sprite style
 	// starting position at center of net
-  this.x = frameWidth/2 - spritesheetFrameWidth/2
-  this.y = frameHeight/2 - Math.round(spritesheetFrameHeight/1.5)
+  this.x = (frameWidth/2+5) - spritesheetFrameWidth/2
+  this.y = (frameHeight/2+2) - Math.round(spritesheetFrameHeight/2)
   this.reposition();
-	// give new sprite a random speed, direction and angle
-	this.xSpeed = Math.round(Math.random() * 8 + 2) * randomDir()
-	this.ySpeed = Math.round(Math.random() * 8 + 2) * randomDir()
+  this.xSpeed = Math.round(Math.random() * 2 +1) * -1
+  this.ySpeed = Math.round(Math.random() * 2 ) * randomDir()
+  // give new sprite a random speed, direction and angle
+	// this.xSpeed = Math.round(Math.random() * 8 + 2) * randomDir()
+	// this.ySpeed = Math.round(Math.random() * 8 + 2) * randomDir()
 	// random spritesheet frame
 	this.frame(spriteCount);
 	// put it into the game window
@@ -166,6 +166,7 @@ function randomDir () {
   }
 }
 
+
 function animateSprites() {
   for (var i = 0; i < spriteCount; i++) {
     sprites[i].x += sprites[i].xSpeed // sprite[i].x = x + xSpeed --> continuously until below condition is met
@@ -173,7 +174,14 @@ function animateSprites() {
 	   // bounce at top and bottom
     if ((sprites[i].y <= (0 + spritesheetFrameHeight / 2)) || (sprites[i].y >= (frameHeight - spritesheetFrameHeight))) {
   		sprites[i].ySpeed = -1 * sprites[i].ySpeed
-    }
+    } // bounce upon contact with paddle 1
+    if ((sprites[i].y > paddle1distanceY) && (sprites[i].y < (paddle1distanceY + paddleHeight)) && (sprites[i].x < (paddle1distanceX + paddleWidth))) {
+      console.log('paddleY contact range: ' + paddle1distanceY + ' - ' + (paddle1distanceY - paddleHeight));
+      sprites[i].ySpeed = -1 * sprites[i].ySpeed
+      sprites[i].xSpeed = -1 * sprites[i].xSpeed
+    } // bounce upon contact with paddle 2
+    // if (paddle1distanceY === this.y && paddle1distanceX === this.x) {
+    // }
     if (sprites[i].x <= (0 - spritesheetFrameWidth * 2)) { // Player 2 scores!
       sprites[spriteCount-1].destroy()
       spriteCount--
@@ -216,8 +224,8 @@ function checkFPS() {
   }
   if (currentFPS < targetFramerate) {
     previousTimestamp = currentTimestamp + (elaspedMs%targetFramerateInterval)
-  console.log('target frame rate interval: ' + targetFramerateInterval);
-  console.log('elasped time: ' + elaspedMs);
+  // console.log('target frame rate interval: ' + targetFramerateInterval);
+  // console.log('elasped time: ' + elaspedMs);
   return
   }
 }
@@ -267,50 +275,3 @@ function maybeAddSprite () {
 }
 
 var minSpriteCount = 40 // utilise this to prevent too many sprites from flooding the screen but or release for crazy mode
-
-// function maybeMoreSprites()  --> do not need this function unless you want to add more...
-// {
-// 	var howmany = 0;
-// 	// keep adding sprites until we go below the target fps
-// 	if ((currentFPS > targetFramerate) || (spriteCount < minSpriteCount))  --> if any one player wins, increase sprite count.
-// 	{
-// 		howmany = newMovingSpritesPerSecond;
-// 		while (howmany--)
-// 		{
-// 			// add one new animated sprite
-// 			sprites[spriteCount] = new Sprite();
-// 			spriteCount++;
-// 		}
-//
-// 		howmany = newLevelSpritesPerSecond;
-// 		while (howmany--)
-// 		{
-// 			// also add tiles to the static level geometry
-// 			levelSprites[levelSpriteCount] = new Sprite(level);
-// 			levelSpriteCount++;
-// 		}
-// 	}
-// 	// remove sprites if the FPS dips too low
-// 	else
-// 	{
-// 		howmany = newMovingSpritesPerSecond;
-// 		while (howmany--)
-// 		{
-// 			if (spriteCount)
-// 			{
-// 				sprites[spriteCount-1].destroy();
-// 				spriteCount--;
-// 			}
-// 		}
-//
-// 		howmany = newLevelSpritesPerSecond;
-// 		while (howmany--)
-// 		{
-// 			if (levelSpriteCount)
-// 			{
-// 				levelSprites[levelSpriteCount-1].destroy();
-// 				levelSpriteCount--;
-// 			}
-// 		}
-// 	}
-// }
