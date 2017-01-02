@@ -1,5 +1,5 @@
 body {
-  background-color: white;
+  background-color: black;
 }
 
 #game {
@@ -21,6 +21,7 @@ body {
 
 #gamestatus {
   font-size: 3vmin;
+  margin: 0.5em;
 }
 
 #gameCourt {
@@ -28,7 +29,7 @@ body {
   width: 60vw;
   background-color: white;
   border: 1px solid black;
-  padding: 4px;
+  padding: 5px;
   position: relative;
   box-sizing: border-box;
   overflow: hidden;
@@ -53,11 +54,13 @@ body {
 .paddlespace {
   height:100%;
   width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 #paddle1, #paddle2 {
   height: 15vh;
   width: 1vw;
   background-color: black;
-  position: absolute;
 }

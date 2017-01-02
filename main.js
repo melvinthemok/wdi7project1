@@ -9,17 +9,14 @@ console.log('frameHeight: ' + frameHeight);
 console.log('frameWidth: ' + frameWidth);
 console.log('paddleHeight: '+ paddleHeight);
 console.log('paddleWidth: ' + paddleWidth);
-var paddle1distanceY = 0 // p1y
-var paddle1distanceX = 4; //p1x (need to + paddleWidth to make the contact point on the right side)
+var paddle1distanceY = 0  // p1y
 var paddle2distanceY = 0 //p2y
-var paddle2distanceX = (frameWidth - 16);
 var p1score = 0
 var p2score = 0
+var wasSpaceBarPressed = false
 
 // dynamic net position
 $('#net').css({'top': 0 , 'left': (frameWidth/2 + 5)})
-$('#paddle1').css({'top': (frameHeight/2 - paddleHeight/2 - 4), 'left': paddle1distanceX})
-$('#paddle2').css({'top': (frameHeight/2 - paddleHeight/2 - 4), 'left': paddle2distanceX})
 
 //paddle controls, condition, start button
 $(document).keydown(function(e) {
@@ -56,10 +53,19 @@ $(document).keydown(function(e) {
         paddle2distanceY = (frameHeight/2) - 90
     }
   } else if (keycode === 32) { // space bar
-    reset()
-    // disable this event listener until game ends to prevent user from launching extra balls during play.
+    toggle(wasSpaceBarPressed)
   }
 })
+
+var toggle = function () {
+  if (wasSpaceBarPressed === false) {
+    reset()
+    return wasSpaceBarPressed = true
+  }
+  if (!wasSpaceBarPressed) {
+    return
+  }
+}
 
 // sprite catridge...
 var sprites = [];
@@ -106,13 +112,11 @@ function SpriteCreate(parentElement) {
 	this.style = this.element.style; // points it towards css .sprite style
 	// starting position at center of net
   this.x = (frameWidth/2+5) - spritesheetFrameWidth/2
-  this.y = (frameHeight/2+2) - Math.round(spritesheetFrameHeight/2)
+  this.y = (frameHeight/2+5) - spritesheetFrameHeight/2
   this.reposition();
-  this.xSpeed = Math.round(Math.random() * 2 +1) * -1
-  this.ySpeed = Math.round(Math.random() * 2 ) * randomDir()
-  // give new sprite a random speed, direction and angle
-	// this.xSpeed = Math.round(Math.random() * 8 + 2) * randomDir()
-	// this.ySpeed = Math.round(Math.random() * 8 + 2) * randomDir()
+  // below 2 lines provide new sprite with a random speed, direction and angle
+	this.xSpeed = Math.round(Math.random() * 8 + 2) * randomDir()
+	this.ySpeed = Math.round(Math.random() * 8 + 2) * randomDir()
 	// random spritesheet frame
 	this.frame(spriteCount);
 	// put it into the game window
@@ -146,7 +150,7 @@ function changeSpriteFrame(num) {
 function repositionSprite () {
 	if (!this) {
     return;
-  } else {
+  } else { // sprites coordinates take y = 0 at top of gameCourt
 		this.style.top = this.y + 'px';
     this.style.left = this.x + 'px';
     // replace jQuery $('this').css({'top': this.y, 'left': this.x})
@@ -172,30 +176,38 @@ function animateSprites() {
     sprites[i].x += sprites[i].xSpeed // sprite[i].x = x + xSpeed --> continuously until below condition is met
     sprites[i].y += sprites[i].ySpeed // how to clear this function each time?
 	  // bounce at top and bottom
-    if ((sprites[i].y <= (0 + spritesheetFrameHeight / 2)) || (sprites[i].y >= (frameHeight - spritesheetFrameHeight))) {
+    if ((sprites[i].y <= 0) || (sprites[i].y >= (frameHeight - spritesheetFrameHeight))) {
   		sprites[i].ySpeed = -1 * sprites[i].ySpeed
     } // bounce upon contact with paddle 1
-    if (sprites[i].x < (paddle1distanceX + paddleWidth)) {
-      console.log('paddle1 x-axis contact check'); // works
-      if (sprites[i].y > paddle1distanceY) {
-        console.log('paddle1 y-axis TOP'); // works
-        if (sprites[i].y < (paddle1distanceY + paddleHeight)) {
-        console.log('paddle1 y-axis LENGTH');
-        console.log('ball contact coordinates: ' + sprites[i].x + ', ' + sprites[i].y);
-        sprites[i].ySpeed = -1 * sprites[i].ySpeed
-        sprites[i].xSpeed = -1 * sprites[i].xSpeed
+    if (sprites[i].x < (5 + paddleWidth)) {
+      if (sprites[i].x > 5) { // to prevent sprite from getting trapped between frame and paddle1
+        if (sprites[i].y > paddle1distanceY + (frameHeight/2 - paddleHeight)) { // need to find a way to calculate the offset based on changing sizes of the screen
+          if (sprites[i].y < (paddle1distanceY + paddleHeight+ spritesheetFrameHeight + 147)) {
+          sprites[i].ySpeed = sprites[i].ySpeed
+          sprites[i].xSpeed = -1 * sprites[i].xSpeed
+          }
         }
       }
     } // bounce upon contact with paddle 2
-    // if (paddle1distanceY === this.y && paddle1distanceX === this.x) {
-    // }
+    if (sprites[i].x > frameWidth - 10 - spritesheetFrameWidth - paddleWidth) {
+      if (sprites[i].x < frameWidth - 10 - spritesheetFrameWidth) { // to prevent sprite from getting trapped between frame and paddle1...
+        if (sprites[i].y > paddle2distanceY + (frameHeight/2 - paddleHeight)) {
+          if (sprites[i].y < (paddle2distanceY + paddleHeight+ spritesheetFrameHeight + 147)) {
+          sprites[i].ySpeed = sprites[i].ySpeed
+          sprites[i].xSpeed = -1 * sprites[i].xSpeed
+          }
+        }
+      }
+    }
     if (sprites[i].x <= (0 - spritesheetFrameWidth * 2)) { // Player 2 scores!
       sprites[spriteCount-1].destroy()
       spriteCount--
       window.cancelAnimationFrame(animationloop) //this stops the animation loop
       p2score ++
+      $('#gamestatus').text('P1: ' + p1score + '  P2: ' + p2score)
       isGameOver()
       console.log('sprite left' + spriteCount)
+      wasSpaceBarPressed = false
       return
     } // if sprite > +/- frameWidth
     if (sprites[i].x >= frameWidth) { // Player 1 scores!
@@ -203,31 +215,16 @@ function animateSprites() {
       spriteCount--
       window.cancelAnimationFrame(animationloop)
       p1score++
+      $('#gamestatus').text('P1: ' + p1score + '  P2: ' + p2score)
       isGameOver()
       console.log('sprite left' + spriteCount)
+      wasSpaceBarPressed = false
       return
     } else {
       sprites[i].reposition()
     }
   }
 }
-
-function paddle1Collision () {
-  if (this.x > (paddle1distanceX + paddleWidth)) {
-    console.log('paddle1 no collision');
-    return false
-  }
-  if (this.x < (paddle1distanceX + paddleWidth)) {
-    if ((this.y > paddle1distanceY) && (this.y < (paddle1distanceY + paddleHeight))) {
-      return true
-      console.log('paddleY contact range: ' + paddle1distanceY + ' - ' + (paddle1distanceY - paddleHeight));
-      console.log('ball contact coordinates: ' + this.x + ', ' + this.y);
-    }
-    console.log('paddle1 no collision');
-  return false
-  }
-}
-
 
 // timer and stats --> perhaps i can get rid of this...
 var currentTimestamp = 0
@@ -243,14 +240,12 @@ function checkFPS() {
   elaspedMs = currentTimestamp - previousTimestamp
   targetFramerateInterval = 1000/targetFramerate
   if ((elaspedMs > targetFramerateInterval)) {
-    previousTimestamp = currentTimestamp - (elaspedMs%targetFramerateInterval)
+    previousTimestamp = currentTimestamp - (elapsedMs % targetFramerateInterval)
     return
   }
   if (currentFPS < targetFramerate) {
-    previousTimestamp = currentTimestamp + (elaspedMs%targetFramerateInterval)
-  // console.log('target frame rate interval: ' + targetFramerateInterval);
-  // console.log('elasped time: ' + elaspedMs);
-  return
+    previousTimestamp = currentTimestamp + (elapsedMs % targetFramerateInterval)
+    return
   }
 }
 
@@ -280,6 +275,7 @@ function reset () {
     //deactivate spacebar listener
     return
   } else {
+    $('#gamestatus').text('P1: ' + p1score + '  P2: ' + p2score)
     sprites[spriteCount] = new SpriteCreate()
     spriteCount++
     console.log('number of sprite added:' + spriteCount);
@@ -299,3 +295,31 @@ function maybeAddSprite () {
 }
 
 var minSpriteCount = 40 // utilise this to prevent too many sprites from flooding the screen but or release for crazy mode
+
+
+// function paddle1Collision () {
+//   if (this.x > (paddle1distanceX + paddleWidth)) {
+//     console.log('paddle1 no collision');
+//     return false
+//   }
+//   if (this.x < (paddle1distanceX + paddleWidth)) {
+//     if ((this.y > paddle1distanceY) && (this.y < (paddle1distanceY + paddleHeight))) {
+//       return true
+//       console.log('paddleY contact range: ' + paddle1distanceY + ' - ' + (paddle1distanceY - paddleHeight));
+//       console.log('ball contact coordinates: ' + this.x + ', ' + this.y);
+//     }
+//     console.log('paddle1 no collision');
+//   return false
+//   }
+// }
+
+// testing variables for engineering
+// this.xSpeed = Math.round(Math.random() * 2 +1) * -1
+// this.ySpeed = Math.round(Math.random() * 2 ) * randomDir()
+
+
+// display flex can set the paddles to the desired position and that's taken as (0,0)
+// var paddle2distanceX = frameWidth - 10;
+// var paddle1distanceX = 5
+// $('#paddle1').css({'top': (frameHeight/2 - paddleHeight/2 - 5), 'left': paddle1distanceX}) // sets y = 0 to middle of frameHeight
+// $('#paddle2').css({'top': (frameHeight/2 - paddleHeight/2 - 5), 'left': paddle2distanceX})
