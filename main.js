@@ -9,9 +9,9 @@ console.log('frameHeight: ' + frameHeight);
 console.log('frameWidth: ' + frameWidth);
 console.log('paddleHeight: '+ paddleHeight);
 console.log('paddleWidth: ' + paddleWidth);
-var paddle1distanceY = 0; // p1y
+var paddle1distanceY = 0 // p1y
 var paddle1distanceX = 4; //p1x (need to + paddleWidth to make the contact point on the right side)
-var paddle2distanceY = 0; //p2y
+var paddle2distanceY = 0 //p2y
 var paddle2distanceX = (frameWidth - 16);
 var p1score = 0
 var p2score = 0
@@ -171,14 +171,21 @@ function animateSprites() {
   for (var i = 0; i < spriteCount; i++) {
     sprites[i].x += sprites[i].xSpeed // sprite[i].x = x + xSpeed --> continuously until below condition is met
     sprites[i].y += sprites[i].ySpeed // how to clear this function each time?
-	   // bounce at top and bottom
+	  // bounce at top and bottom
     if ((sprites[i].y <= (0 + spritesheetFrameHeight / 2)) || (sprites[i].y >= (frameHeight - spritesheetFrameHeight))) {
   		sprites[i].ySpeed = -1 * sprites[i].ySpeed
     } // bounce upon contact with paddle 1
-    if ((sprites[i].y > paddle1distanceY) && (sprites[i].y < (paddle1distanceY + paddleHeight)) && (sprites[i].x < (paddle1distanceX + paddleWidth))) {
-      console.log('paddleY contact range: ' + paddle1distanceY + ' - ' + (paddle1distanceY - paddleHeight));
-      sprites[i].ySpeed = -1 * sprites[i].ySpeed
-      sprites[i].xSpeed = -1 * sprites[i].xSpeed
+    if (sprites[i].x < (paddle1distanceX + paddleWidth)) {
+      console.log('paddle1 x-axis contact check'); // works
+      if (sprites[i].y > paddle1distanceY) {
+        console.log('paddle1 y-axis TOP'); // works
+        if (sprites[i].y < (paddle1distanceY + paddleHeight)) {
+        console.log('paddle1 y-axis LENGTH');
+        console.log('ball contact coordinates: ' + sprites[i].x + ', ' + sprites[i].y);
+        sprites[i].ySpeed = -1 * sprites[i].ySpeed
+        sprites[i].xSpeed = -1 * sprites[i].xSpeed
+        }
+      }
     } // bounce upon contact with paddle 2
     // if (paddle1distanceY === this.y && paddle1distanceX === this.x) {
     // }
@@ -204,6 +211,23 @@ function animateSprites() {
     }
   }
 }
+
+function paddle1Collision () {
+  if (this.x > (paddle1distanceX + paddleWidth)) {
+    console.log('paddle1 no collision');
+    return false
+  }
+  if (this.x < (paddle1distanceX + paddleWidth)) {
+    if ((this.y > paddle1distanceY) && (this.y < (paddle1distanceY + paddleHeight))) {
+      return true
+      console.log('paddleY contact range: ' + paddle1distanceY + ' - ' + (paddle1distanceY - paddleHeight));
+      console.log('ball contact coordinates: ' + this.x + ', ' + this.y);
+    }
+    console.log('paddle1 no collision');
+  return false
+  }
+}
+
 
 // timer and stats --> perhaps i can get rid of this...
 var currentTimestamp = 0
