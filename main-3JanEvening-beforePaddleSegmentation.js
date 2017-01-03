@@ -79,6 +79,37 @@ var toggle = function () {
   }
 }
 
+
+
+//y coordinate range of each paddleSegment:
+paddleSegment.forEach(function(value, index) {
+if ((sprite[i].y > (paddle1Y + (paddleSegmentHeight * indexOf(value)) + paddleAndSpriteOffset)) &&
+(sprite[i].y < (paddle1Y + (paddleSegmentHeight * paddleSegment[index].length) + paddleAndSpriteOffset))) {
+    if (indexOf(value) === 0 || 7) { // 15 deg bounce
+      sprites[i].ySpeed = sprites[i].ySpeed
+      sprites[i].xSpeed = -6 * sprites[i].xSpeed
+    }
+    if (indexOf(value) === 1 || 6) { // 30 deg bounce
+      sprites[i].ySpeed = sprites[i].ySpeed
+      sprites[i].xSpeed = -3 * sprites[i].xSpeed
+    }
+    if (indexOf(value) === 2 || 5) { // 60 deg bounce
+      sprites[i].ySpeed = 3 * sprites[i].ySpeed
+      sprites[i].xSpeed = -1 * sprites[i].xSpeed
+    }
+    if (indexOf(value) === 3 || 4) { // 90 deg bounce
+      sprites[i].ySpeed = sprites[i].ySpeed
+      sprites[i].xSpeed = -1 * sprites[i].xSpeed
+    }
+  }
+})
+
+
+
+
+
+
+
 // 60fps may be a bit too high for this game. when you have time, mess with this.
 // refactor based on: http://creativejs.com/resources/requestanimationframe/ --> for some reason, i can't throw in the whole polyfill??? :(
 // extra reference: https://css-tricks.com/using-requestanimationframe/
@@ -188,42 +219,20 @@ function animateSprites () {
     if ((sprites[i].y <= 0) || (sprites[i].y >= (frameHeight - spritesheetFrameHeight))) {
   		sprites[i].ySpeed = -1 * sprites[i].ySpeed
     } // bounce upon contact with paddle 1
-    if (sprites[i].x < framePadding + paddleWidth) {
+    if (sprites[i].x < framePadding + paddleWidth) { //
       if (sprites[i].x > framePadding) { // to prevent sprite from getting trapped between frame and paddle1
-        paddleSegment.forEach(function (value, index) { // y coordinate range of each paddleSegment
-          if ((sprites[i].y > (paddle1Y + (paddleSegmentHeight * paddleSegment.indexOf(value)) + framePadding + paddleAndSpriteOffset))) {
-            console.log(paddleSegment.indexOf(value)); ---> WHY DIS???? 
-            if (sprites[i].y < (paddle1Y + (paddleSegmentHeight * (paddleSegment.indexOf(value)+1)) + framePadding + spritesheetFrameHeight + paddleAndSpriteOffset)) {
-              console.log('bottom of y segment being checked');
-              if (paddleSegment.indexOf(value) === 0 || 7) { // 15 deg bounce
-                console.log('15 deg bounce ');
-                sprites[i].ySpeed = sprites[i].ySpeed
-                sprites[i].xSpeed = -6 * sprites[i].xSpeed
-              }
-              if (paddleSegment.indexOf(value) === 1 || 6) { // 30 deg bounce
-                console.log('30 deg bounce ');
-                sprites[i].ySpeed = sprites[i].ySpeed
-                sprites[i].xSpeed = -3 * sprites[i].xSpeed
-              }
-              if (paddleSegment.indexOf(value) === 2 || 5) { // 60 deg bounce
-                console.log('60 deg bounce ');
-                sprites[i].ySpeed = 3 * sprites[i].ySpeed
-                sprites[i].xSpeed = -1 * sprites[i].xSpeed
-              }
-              if (paddleSegment.indexOf(value) === 3 || 4) { // 90 deg bounce
-                console.log('90 deg bounce ');
-                sprites[i].ySpeed = sprites[i].ySpeed
-                sprites[i].xSpeed = -1 * sprites[i].xSpeed
-              }
-            }
+        if (sprites[i].y > paddle1Y + paddleAndSpriteOffset) { // need to find a way to calculate the offset based on changing sizes of the screen
+          if (sprites[i].y < (paddle1Y + paddleHeight + spritesheetFrameHeight + paddleAndSpriteOffset)) {
+            sprites[i].ySpeed = sprites[i].ySpeed
+            sprites[i].xSpeed = -1 * sprites[i].xSpeed
           }
-        })
+        }
       }
     } // bounce upon contact with paddle 2
     if (sprites[i].x > frameWidth - (framePadding * 2) - spritesheetFrameWidth - paddleWidth) {
       if (sprites[i].x < frameWidth - (framePadding * 2) - spritesheetFrameWidth) { // to prevent sprite from getting trapped between frame and paddle1...
-        if (sprites[i].y > paddle2Y + paddleAndSpriteOffset + framePadding) {
-          if (sprites[i].y < (paddle2Y + paddleHeight + framePadding + spritesheetFrameHeight + paddleAndSpriteOffset)) {
+        if (sprites[i].y > paddle2Y + paddleAndSpriteOffset) {
+          if (sprites[i].y < (paddle2Y + paddleHeight + spritesheetFrameHeight + paddleAndSpriteOffset)) {
             sprites[i].ySpeed = sprites[i].ySpeed
             sprites[i].xSpeed = -1 * sprites[i].xSpeed
           }

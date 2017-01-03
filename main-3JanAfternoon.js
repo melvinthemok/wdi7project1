@@ -3,7 +3,7 @@ console.log('JS loaded');
 var gameCourt = document.getElementById('gameCourt')
 var frameHeight = parseInt($('#gameCourt').css('height')) // jQuery gives height as a string i.e. XYpx. parseInt here would remove everything else
 var frameWidth = parseInt($('#gameCourt').css('width'))
-var framePadding = parseInt($('#gameCourt').css('padding')) // 5px
+var framePadding = parseInt($('#gameCourt').css('padding'))
 var paddleHeight = parseInt($('#paddle1').css('height'))
 var paddleWidth = parseInt($('#paddle1').css('width'))
 console.log('frameHeight: ' + frameHeight);
@@ -16,17 +16,9 @@ var p1score = 0
 var p2score = 0
 var paddleAndSpriteOffset = frameHeight / 2 - paddleHeight  // currently coordinates of paddle area and sprite are do not match
 var wasSpaceBarPressed = false
-var areThereSprites = false
-var animationloop // rAF global var
-var sprites = [] // sprite catridge...
-var spriteCount = 0
-console.log('Sprite count at start of game: ' + spriteCount)
-// paddle angular response --> specific check when ball enters range of paddle length
-var paddleSegment = [0, 0, 0, 0, 0 ,0, 0, 0] //
-var paddleSegmentHeight = Math.round(paddleHeight/(paddleSegment.length))  // length of each segment
 
 // dynamic net position
-$('#net').css({'top': 0 , 'left': (frameWidth / 2 + framePadding)})
+$('#net').css({'top': 0 , 'left': (frameWidth / 2 + 5)})
 
 //paddle controls, condition, start button
 $(document).keydown(function(e) {
@@ -68,7 +60,7 @@ $(document).keydown(function(e) {
   }
 })
 
-// prevents users came launching more balls during level 1 game play
+// prevents users from launching more balls during level 1 game play
 var toggle = function () {
   if (wasSpaceBarPressed === false) {
     reset()
@@ -79,26 +71,40 @@ var toggle = function () {
   }
 }
 
-// 60fps may be a bit too high for this game. when you have time, mess with this.
-// refactor based on: http://creativejs.com/resources/requestanimationframe/ --> for some reason, i can't throw in the whole polyfill??? :(
-// extra reference: https://css-tricks.com/using-requestanimationframe/
+// sprite catridge...
+var sprites = []
+var spriteCount = 0
 
+// 60fps may be a bit too high for this game. when you have time, mess with this.
+// refactor based on: http://creativejs.com/resources/requestanimationframe/
+// extra reference: https://css-tricks.com/using-requestanimationframe/
 //below is an inbuilt polyfill method which runs the animation only when the window is active.
+
 // requestAnimationFrame polyfill by Erik Möller, fixes from Paul Irish and Tino Zijdel
-if (!window.requestAnimationFrame)
-{
-  window.requestAnimationFrame = (function()
-  {
-    return window.webkitRequestAnimationFrame ||
-    window.mozRequestAnimationFrame ||
-    window.oRequestAnimationFrame ||
-    window.msRequestAnimationFrame ||
-    function(callback,element)
-    {
-      window.setTimeout(callback, 1000 / 60);
-    };
-  })();
-}
+// (function () {
+//     var lastTime = 0;
+//     var vendors = ['ms', 'moz', 'webkit', 'o'];
+//     for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+//         window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+//         window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame']
+//                                    || window[vendors[x]+'CancelRequestAnimationFrame'];
+//     }
+//
+//     if (!window.requestAnimationFrame) // if window is inactive
+//         window.requestAnimationFrame = function(callback, element) {
+//             var currTime = new Date().getTime();  // this already tries to offset fps differences...
+//             var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+//             var id = window.setTimeout(function() { callback(currTime + timeToCall); },
+//               timeToCall);
+//             lastTime = currTime + timeToCall;
+//             return id;
+//         };
+//
+//     if (!window.cancelAnimationFrame)
+//         window.cancelAnimationFrame = function(id) {
+//             clearTimeout(id);
+//         };
+// }());
 
 // deletes sprite once it exits frameWidth
 function destroySprite () {
@@ -120,14 +126,12 @@ function SpriteCreate (parentElement) {
 	this.element.className = 'sprite';
 	this.style = this.element.style; // refers to css .sprite style
 	// starting position at center of net
-  this.x = (frameWidth / 2 + framePadding) - spritesheetFrameWidth / 2
-  this.y = (frameHeight / 2 + framePadding) - spritesheetFrameHeight / 2
+  this.x = (frameWidth / 2 + 5) - spritesheetFrameWidth / 2
+  this.y = (frameHeight / 2 + 5) - spritesheetFrameHeight / 2
   this.reposition()
-  this.xSpeed = Math.round(Math.random() * 2 +1) * -1
-  this.ySpeed = Math.round(Math.random() * 2 ) * randomDir()
-  // below 2 lines provide new sprite with a random speed, direction and angle (currently: 90 deg)
-	// this.xSpeed = Math.round(Math.random() * 8 + 2) * randomDir()
-	// this.ySpeed = Math.round(Math.random() * 8 + 2) * randomDir()
+  // below 2 lines provide new sprite with a random speed, direction and angle
+	this.xSpeed = Math.round(Math.random() * 8 + 2) * randomDir()
+	this.ySpeed = Math.round(Math.random() * 8 + 2) * randomDir()
 	// random spritesheet frame
 	this.frame(spriteCount)
 	// put it into the game window
@@ -144,15 +148,15 @@ var spritesheetYFrames = spritesheetHeight / spritesheetFrameHeight
 var spritesheetFrames = spritesheetXFrames * spritesheetYFrames;
 
 function changeSpriteFrame(num) {
-	if (!this) {
-    return;
+  if (!this) {
+    return
   } else {
-    // $('.sprite').css('background-position', ' (-1 * (num % spritesheetXFrames) * spritesheetFrameWidth) + 'px ' +
-		//(-1 * (Math.round(num / spritesheetXFrames) % spritesheetYFrames))
-		// * spritesheetFrameHeight + 'px'')
+  // $('.sprite').css('background-position', ' (-1 * (num % spritesheetXFrames) * spritesheetFrameWidth) + 'px ' +
+	//(-1 * (Math.round(num / spritesheetXFrames) % spritesheetYFrames))
+	// * spritesheetFrameHeight + 'px'')
 	this.style.backgroundPosition =
-		(-1 * (num % spritesheetXFrames) * spritesheetFrameWidth) + 'px ' +
-		(-1 * (Math.round(num / spritesheetXFrames) % spritesheetYFrames) * spritesheetFrameHeight) + 'px';
+		(-1 * (num % spritesheetXFrames) * spritesheetFrameWidth + 'px ') +
+		(-1 * (Math.round(num / spritesheetXFrames) % spritesheetYFrames)) * spritesheetFrameHeight + 'px '
   }
 }
 
@@ -161,9 +165,9 @@ function repositionSprite () {
   if (!this) {
     return
   } else { // sprites coordinates take y = 0 at top of gameCourt
-	   this.style.top = this.y + 'px'
-     this.style.left = this.x + 'px'
-     // replace jQuery $('this').css({'top': this.y, 'left': this.x})
+    this.style.top = this.y + 'px'
+    this.style.left = this.x + 'px'
+    // replace jQuery $('this').css({'top': this.y, 'left': this.x})... or not since this is meant to be part of constructor function
   }
 }
 
@@ -182,48 +186,26 @@ function randomDir () {
 
 function animateSprites () {
   for (var i = 0; i < spriteCount; i++) {
-    sprites[i].x += sprites[i].xSpeed // sprite[i].x = x + xSpeed
+    sprites[i].x += sprites[i].xSpeed // sprite[i].x = x + xSpeed --> continuously until below condition is met
     sprites[i].y += sprites[i].ySpeed
 	  // bounce at top and bottom
     if ((sprites[i].y <= 0) || (sprites[i].y >= (frameHeight - spritesheetFrameHeight))) {
   		sprites[i].ySpeed = -1 * sprites[i].ySpeed
     } // bounce upon contact with paddle 1
-    if (sprites[i].x < framePadding + paddleWidth) {
+    if (sprites[i].x < framePadding + paddleWidth) { // 5px refers to the padding in gameCourt
       if (sprites[i].x > framePadding) { // to prevent sprite from getting trapped between frame and paddle1
-        paddleSegment.forEach(function (value, index) { // y coordinate range of each paddleSegment
-          if ((sprites[i].y > (paddle1Y + (paddleSegmentHeight * paddleSegment.indexOf(value)) + framePadding + paddleAndSpriteOffset))) {
-            console.log(paddleSegment.indexOf(value)); ---> WHY DIS???? 
-            if (sprites[i].y < (paddle1Y + (paddleSegmentHeight * (paddleSegment.indexOf(value)+1)) + framePadding + spritesheetFrameHeight + paddleAndSpriteOffset)) {
-              console.log('bottom of y segment being checked');
-              if (paddleSegment.indexOf(value) === 0 || 7) { // 15 deg bounce
-                console.log('15 deg bounce ');
-                sprites[i].ySpeed = sprites[i].ySpeed
-                sprites[i].xSpeed = -6 * sprites[i].xSpeed
-              }
-              if (paddleSegment.indexOf(value) === 1 || 6) { // 30 deg bounce
-                console.log('30 deg bounce ');
-                sprites[i].ySpeed = sprites[i].ySpeed
-                sprites[i].xSpeed = -3 * sprites[i].xSpeed
-              }
-              if (paddleSegment.indexOf(value) === 2 || 5) { // 60 deg bounce
-                console.log('60 deg bounce ');
-                sprites[i].ySpeed = 3 * sprites[i].ySpeed
-                sprites[i].xSpeed = -1 * sprites[i].xSpeed
-              }
-              if (paddleSegment.indexOf(value) === 3 || 4) { // 90 deg bounce
-                console.log('90 deg bounce ');
-                sprites[i].ySpeed = sprites[i].ySpeed
-                sprites[i].xSpeed = -1 * sprites[i].xSpeed
-              }
-            }
+        if (sprites[i].y > paddle1Y + paddleAndSpriteOffset) { // need to find a way to calculate the offset based on changing sizes of the screen
+          if (sprites[i].y < (paddle1Y + paddleHeight + spritesheetFrameHeight + paddleAndSpriteOffset)) {
+            sprites[i].ySpeed = sprites[i].ySpeed
+            sprites[i].xSpeed = -1 * sprites[i].xSpeed
           }
-        })
+        }
       }
     } // bounce upon contact with paddle 2
     if (sprites[i].x > frameWidth - (framePadding * 2) - spritesheetFrameWidth - paddleWidth) {
       if (sprites[i].x < frameWidth - (framePadding * 2) - spritesheetFrameWidth) { // to prevent sprite from getting trapped between frame and paddle1...
-        if (sprites[i].y > paddle2Y + paddleAndSpriteOffset + framePadding) {
-          if (sprites[i].y < (paddle2Y + paddleHeight + framePadding + spritesheetFrameHeight + paddleAndSpriteOffset)) {
+        if (sprites[i].y > paddle2Y + paddleAndSpriteOffset) {
+          if (sprites[i].y < (paddle2Y + paddleHeight + spritesheetFrameHeight + paddleAndSpriteOffset)) {
             sprites[i].ySpeed = sprites[i].ySpeed
             sprites[i].xSpeed = -1 * sprites[i].xSpeed
           }
@@ -233,11 +215,8 @@ function animateSprites () {
     if (sprites[i].x <= (0 - spritesheetFrameWidth * 2)) { // Player 2 scores!
       sprites[spriteCount - 1].destroy()
       spriteCount--
-      if (spriteCount === 0) { // rAF stop only when spriteCount = 0
-        window.cancelAnimationFrame(animationloop)
-        areThereSprites = false
-      }
-      p2score++
+      window.cancelAnimationFrame(animationloop) // this stops the animation loop
+      p2score ++
       $('#gamestatus').text('P1: ' + p1score + '  P2: ' + p2score)
       isGameOver()
       console.log('sprite left' + spriteCount)
@@ -247,10 +226,7 @@ function animateSprites () {
     if (sprites[i].x >= frameWidth) { // Player 1 scores!
       sprites[spriteCount - 1].destroy()
       spriteCount--
-      if (spriteCount === 0) {
-        window.cancelAnimationFrame(animationloop)
-        areThereSprites = false
-      }
+      window.cancelAnimationFrame(animationloop)
       p1score++
       $('#gamestatus').text('P1: ' + p1score + '  P2: ' + p2score)
       isGameOver()
@@ -263,19 +239,35 @@ function animateSprites () {
   }
 }
 
-// timer... to control FPS but i feel like you don't need this for now...
+// timer
 var currentTimestamp = 0
 var previousTimestamp = Date.now()
 var framesThisSecond = 0 // may not need this variable as it's for status update
 var elapsedMs = 0
 var currentFPS = 0
 var targetFramerate = 60
+var animationloop
+//
+// function checkFPS () {
+//   currentTimestamp = Date.now()
+//   elapsedMs = currentTimestamp - previousTimestamp // delta time
+//   var targetFramerateInterval = 1000 / targetFramerate
+//   if ((elapsedMs > targetFramerateInterval)) {
+//     previousTimestamp = currentTimestamp - (elapsedMs % targetFramerateInterval)
+//     return
+//   }
+//   if (currentFPS < targetFramerate) {
+//     previousTimestamp = currentTimestamp + (elapsedMs % targetFramerateInterval)
+//     return
+//   }
+// }
 
 function animate () { // --> this is the renderer but we will need to check if game is over.
-  // checkFPS() --> you may not need this anymore...
-  animationloop = window.requestAnimationFrame(animate)
-  areThereSprites = true
-  animateSprites()
+    setTimeout(function() {
+    animationloop = requestAnimationFrame(animate)
+    // checkFPS()
+    animateSprites() // i haven't included what i want to do with the different timestamps to control frame speed...
+  }, 1000 / targetFramerate)
 }
 
 function isGameOver() { // updates message board... this is hard coded ...
@@ -300,23 +292,18 @@ function reset () {
     sprites[spriteCount] = new SpriteCreate()
     spriteCount++
     console.log('number of sprite added:' + spriteCount)
-    if (areThereSprites === false) { // this starts rAF
-      animate()
-    }
-    if (areThereSprites === true) { // prevents multiple rAF with creation of new sprites
-      animateSprites()
-    }
+    animate()
   }
 }
 
 // LEVEL 2 OF GAME when either player wins and continues to play, call this function. SetInterval (maybeAddSprite, every 20 secs? )
 function maybeAddSprite () {
-  if (randomizer() > 8) {
-    sprites[spriteCount] = new SpriteCreate()
-    spriteCount++
-  } else {
-    return false
-  }
+    if (randomizer() > 8) {
+      sprites[spriteCount] = new SpriteCreate()
+      spriteCount++
+    } else {
+      return false
+    }
 }
 
 var minSpriteCount = 40 // utilise this to prevent too many sprites from flooding the screen but or release for crazy mode
@@ -346,23 +333,3 @@ var minSpriteCount = 40 // utilise this to prevent too many sprites from floodin
 // var paddle1distanceX = 5
 // $('#paddle1').css({'top': (frameHeight/2 - paddleHeight/2 - 5), 'left': paddle1distanceX}) // sets y = 0 to middle of frameHeight
 // $('#paddle2').css({'top': (frameHeight/2 - paddleHeight/2 - 5), 'left': paddle2distanceX})
-
-// function checkFPS () {
-//   currentTimestamp = Date.now()
-//   elapsedMs = currentTimestamp - previousTimestamp
-//   var targetFramerateInterval = 1000 / targetFramerate
-//   if ((elapsedMs > targetFramerateInterval)) {
-//     previousTimestamp = currentTimestamp - (elapsedMs % targetFramerateInterval)
-//     return
-//   }
-//   if (currentFPS < targetFramerate) {
-//     previousTimestamp = currentTimestamp + (elapsedMs % targetFramerateInterval)
-//     return
-//   }
-// }
-
-// var deg15 = function () {
-//   if (((sprite[i].y > paddleSegment[0].y) && (sprite[i].y < paddleSegment[0].y + paddleSegmentHeight)) ||
-//      ((sprite[i].y > paddleSegment[7].y) && (sprite[i].y < paddleSegment[7].y + paddleSegmentHeight))) {
-// }
-// }
