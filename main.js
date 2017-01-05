@@ -42,6 +42,8 @@ $(document).keydown(function (e) { // starts game
   }
 })
 
+
+
 function whatKey() {
   if (keys[87]) { // w
     if ($('#paddle1').position().top > framePadding) {
@@ -93,7 +95,6 @@ var toggle = function () {
     return
   }
 }
-
 
 // sprite constructor
 function SpriteCreate (parentElement) {
@@ -153,7 +154,6 @@ function repositionSprite () {
   } else { // sprites coordinates take y = 0 at top of gameCourt
 	   this.style.top = this.y + 'px'
      this.style.left = this.x + 'px'
-     // replace jQuery $('this').css({'top': this.y, 'left': this.x})
   }
 }
 
@@ -203,24 +203,18 @@ function animateSprites () {
       sprites[spriteCount - 1].destroy()
       spriteCount--
       p2score++
-      $('#p3').text('Player 2 ' + p2score)
+      $('#p2').text('Player 2: ' + p2score)
       isGameOver()
       console.log('sprite left' + spriteCount)
-      wasSpaceBarPressed = false
       return
     }
     if (sprites[i].x >= frameWidth) { // Player 1 scores!
       sprites[spriteCount - 1].destroy()
       spriteCount--
-      // if (spriteCount === 0) {
-      //   window.cancelAnimationFrame(animationloop)
-      //   areThereSprites = false
-      // }
       p1score++
-      $('#p2').text('Player 1: ' + p1score)
+      $('#p1').text('Player 1: ' + p1score)
       isGameOver()
       console.log('sprite left' + spriteCount)
-      wasSpaceBarPressed = false
       return
     } else {
       sprites[i].reposition()
@@ -237,63 +231,83 @@ function animate () {
 
 function isGameOver() { // updates message board... this is hard coded ...
   if ((p1score < 5) && (p2score < 5)) {
+    wasSpaceBarPressed = false
     return false
   } if (p1score || p2score === 5 ) {
       if (p1score === 5) {
-        $('#instruct').text('Player 1 wins level ' + level + ' round!')
-        $('#p1').text('...')
+        $('#instruct').text('Press spacebar to continue to the next level!')
+        $('#p1').text('Player 1 wins level ' + level + ' round!').css({'border':'1px dotted white', 'padding': '5px'})
         $('#p2').text('...')
       }
       if (p2score === 5) {
-        $('#instruct').text('Player 2 wins level ' + level + ' round!')
+        $('#instruct').text('Press spacebar to continue to level ' + level + '!')
         $('#p1').text('...')
-        $('#p2').text('...')
+        $('#p2').text('Player 2 wins level ' + level + ' round!').css({'border':'1px dotted white', 'padding': '5px'})
       }
-    p1score = 0
-    p2score = 0
-    level++
+    level += 1
     newlevel()
-    wasSpaceBarPressed = false
-    $('#instruct').text('Press spacebar to continue to level ' + level + '!')
     return true
   }
 }
 
 function newlevel () {
   if (level === 1) {
+    p1score = 0
+    p2score = 0
+    wasSpaceBarPressed = false
     return
   }
   if (level === 2) {
-    $('#paddle1').css('height',120)
-    $('#paddle2').css('height',120)
+    // $('body').prepend("<div id='winnermsg'> <p>WDI 7 Project 1</p> <p>Pong</p> <p>Olivia Chung</p> </div>")
+    $('body').prepend("<div id='winnermsg'> <p>Level 2!</p> <p> Click to hide this message and press space to launch your game</p> </div>")
+    $('#winnermsg').click(function() {
+      wasSpaceBarPressed = false
+    $('#winnermsg').remove()})
+    $('body').css({'background-color': 'transparent', 'background-image': 'url("./background-image.jpg")'})
+    $('#gameCourt').css('opacity', 0.6)
+    $('.sprite').css('opacity', 1)
+    $('#paddle1').css('height', 120)
+    $('#paddle2').css('height', 120)
     paddleHeight = parseInt($('#paddle1').css('height'))
+    p1score = 0
+    p2score = 0
     return
+  }
+  if (level === 3) {
+    window.cancelAnimationFrame(animationloop)
+    $('body').prepend("<div id='winnermsg'> <p>Game Over</p> <p> Click to refresh</p> </div>")
+    $('#winnermsg').click(function() {
+    location.reload(true)})
   }
 }
 
 function reset () {
     $('#instruct').text('Level: '+ level)
-    $('#p1').text('Player 1: ' + p1score)
-    $('#p2').text('Player 2: ' + p2score)
+    $('#p1').text('Player 1: ' + p1score).css({'border':'none', 'border-radius': 'none'})
+    $('#p2').text('Player 2: ' + p2score).css({'border':'none', 'border-radius': 'none'})
     sprites[spriteCount] = new SpriteCreate()
     spriteCount++
     console.log('number of sprite added:' + spriteCount)
     if (areThereSprites === false) { // this starts rAF
       animate()
     }
-    if (areThereSprites === true) { // prevents multiple rAF calls with creation of new sprites
+    if (areThereSprites === true) { // prevents multiple rAF calls with creation of new sprites for higher levels...
       ;
     }
 }
 
 // other nifty options for other levels...  utilise rAF which is already turned on anyway.
-function maybeAddSprite () {
-  if (randomizer() > 8) {
-    sprites[spriteCount] = new SpriteCreate() // reset() should work here...
-    spriteCount++
-  } else {
-    return false
-  }
-}
-
-var minSpriteCount = 40 // utilise this to prevent too many sprites from flooding the screen but or release for crazy mode
+// function maybeAddSprite () {
+//   if (randomizer() > 8) {
+//     sprites[spriteCount] = new SpriteCreate() // reset() should work here...
+//     spriteCount++
+//   } else {
+//     return false
+//   }
+// }
+//  add the below to animate, after sprite exits game area
+// if (spriteCount === 0) { // for multiple sprites
+//   window.cancelAnimationFrame(animationloop)
+//   areThereSprites = false
+// }
+// var minSpriteCount = 40 // utilise this to prevent too many sprites from flooding the screen but or release for crazy mode
