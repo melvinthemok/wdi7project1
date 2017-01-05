@@ -25,7 +25,7 @@ $('#paddle1').css({'top': (frameHeight/2 - paddleHeight/2 - framePadding), 'left
 $('#paddle2').css({'top': (frameHeight/2 - paddleHeight/2 - framePadding), 'left': frameWidth - framePadding - paddleWidth})
 
 //paddle controls, start button
-var keys = {}
+var keys = {} // keycode: true/false stored as an object
 
 $(document).keydown(function (e) {
   keys[e.which] = true
@@ -110,8 +110,8 @@ function SpriteCreate (parentElement) {
   this.y = (frameHeight / 2 + framePadding) - spritesheetFrameHeight / 2
   this.reposition()
   // below 2 lines provide new sprite with a random speed, direction and angle (currently: 90 deg)
-	this.xSpeed = Math.round(Math.random() * 7 + 4) * randomDir()
-	this.ySpeed = Math.round(Math.random() * 7 + 4) * randomDir()
+	this.xSpeed = Math.round(Math.random() * 6 + 3) * randomDir()
+	this.ySpeed = Math.round(Math.random() * 6 + 3) * randomDir()
 	// random spritesheet frame
 	this.frame(spriteCount)
 	// put it into the game window
@@ -202,10 +202,6 @@ function animateSprites () {
       console.log(i);
       sprites[spriteCount - 1].destroy()
       spriteCount--
-      // if (spriteCount === 0) { // rAF stop only when spriteCount = 0
-      //   window.cancelAnimationFrame(animationloop)
-      //   areThereSprites = false
-      // }
       p2score++
       $('#p3').text('Player 2 ' + p2score)
       isGameOver()
@@ -244,21 +240,21 @@ function isGameOver() { // updates message board... this is hard coded ...
     return false
   } if (p1score || p2score === 5 ) {
       if (p1score === 5) {
-        $('#p1').text('Player 1 wins level ' + level + ' round!')
+        $('#instruct').text('Player 1 wins level ' + level + ' round!')
+        $('#p1').text('...')
         $('#p2').text('...')
-        $('#p3').text('Time for some coffee Player 2')
       }
       if (p2score === 5) {
-        $('#p1').text('Player 2 wins level ' + level + ' round!')
+        $('#instruct').text('Player 2 wins level ' + level + ' round!')
+        $('#p1').text('...')
         $('#p2').text('...')
-        $('#p3').text('Time for some coffee Player 1')
       }
     p1score = 0
     p2score = 0
     level++
     newlevel()
     wasSpaceBarPressed = false
-    $('#p1').text('Press spacebar to continue to level ' + level + '!')
+    $('#instruct').text('Press spacebar to continue to level ' + level + '!')
     return true
   }
 }
@@ -268,21 +264,17 @@ function newlevel () {
     return
   }
   if (level === 2) {
-    $('#paddle1').css('height',150)
-    $('#paddle2').css('height',150)
+    $('#paddle1').css('height',120)
+    $('#paddle2').css('height',120)
     paddleHeight = parseInt($('#paddle1').css('height'))
     return
   }
 }
 
 function reset () {
-  // if (isGameOver === true) { -> no need for this unless you're planning to launch multiple balls during game play...
-  //  wasSpaceBarPressed = true
-  //  return
-  // } else {}
-    $('#p1').text('Level: '+ level)
-    $('#p2').text('Player 1: ' + p1score)
-    $('#p3').text('Player 2: ' + p2score)
+    $('#instruct').text('Level: '+ level)
+    $('#p1').text('Player 1: ' + p1score)
+    $('#p2').text('Player 2: ' + p2score)
     sprites[spriteCount] = new SpriteCreate()
     spriteCount++
     console.log('number of sprite added:' + spriteCount)
@@ -305,39 +297,3 @@ function maybeAddSprite () {
 }
 
 var minSpriteCount = 40 // utilise this to prevent too many sprites from flooding the screen but or release for crazy mode
-
-// function paddle1Collision () {
-//   if (this.x > (paddle1distanceX + paddleWidth)) {
-//     console.log('paddle1 no collision');
-//     return false
-//   }
-//   if (this.x < (paddle1distanceX + paddleWidth)) {
-//     if ((this.y > paddle1YDistance) && (this.y < (paddle1YDistance + paddleHeight))) {
-//       return true
-//       console.log('paddleY contact range: ' + paddle1YDistance + ' - ' + (paddle1YDistance - paddleHeight));
-//       console.log('ball contact coordinates: ' + this.x + ', ' + this.y);
-//     }
-//     console.log('paddle1 no collision');
-//   return false
-//   }
-// }
-
-// testing variables for engineering
-// this.xSpeed = Math.round(Math.random() * 2 +1) * -1
-// this.ySpeed = Math.round(Math.random() * 2 ) * randomDir()
-
-
-
-// function checkFPS () {
-//   currentTimestamp = Date.now()
-//   elapsedMs = currentTimestamp - previousTimestamp
-//   var targetFramerateInterval = 1000 / targetFramerate
-//   if ((elapsedMs > targetFramerateInterval)) {
-//     previousTimestamp = currentTimestamp - (elapsedMs % targetFramerateInterval)
-//     return
-//   }
-//   if (currentFPS < targetFramerate) {
-//     previousTimestamp = currentTimestamp + (elapsedMs % targetFramerateInterval)
-//     return
-//   }
-// }

@@ -1,5 +1,5 @@
 body {
-  background-color: orange;
+  background-color: rgb(221, 108, 176);
 }
 
 #game {
@@ -12,23 +12,30 @@ body {
   color: white;
   font-family: 'Press Start 2P', cursive;
   text-align: center;
+  text-shadow: 2px 2px 0px grey;
 }
 
 #title {
   font-size: 5vmin;
-  margin:0.5em;
+  margin:0.3em;
 }
 
 #gamestatus {
-  font-size: 2.5vmin;
-  margin: 0.5em;
+  font-size: 2vmin;
+  margin: 0.3em;
+}
+
+#scores {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-between;
 }
 
 #gameCourt {
   height: 500px;
-  width: 900px;
+  width: 800px;
   background-color: white;
-  border: 1px solid green;
+  border: 1px solid grey;
   padding: 5px;
   position: relative;
   box-sizing: border-box;
@@ -36,9 +43,9 @@ body {
 }
 
 #net {
-  height:600px;
-  width: 2px;
-  background-color: rgba(0,0,0,0.5);
+  height:500px;
+  width: 1px;
+  border-left: 2px dashed rgba(0,0,0,0.5);
   position: absolute;
 }
 
@@ -46,23 +53,23 @@ body {
   position: absolute;
   width: 25.6px;
   height: 25.3px;
-  border: 1px solid black;
+  /*border: 1px solid white;*/
   border-radius: 50%;
   background-image: url(./spriteImage/marbles-77x77.png);
 }
 
 #paddle1 {
   position: absolute;
-  height: 200px;
+  height: 170px;
   width: 10px;
-  background-color: green;
+  background-color: grey;
 }
 
 #paddle2 {
   position: absolute;
-  height: 200px;
+  height: 170px;
   width: 10px;
-  background-color: green;
+  background-color: grey;
 }
 
 /*.paddlespace {
