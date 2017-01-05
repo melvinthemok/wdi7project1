@@ -215,7 +215,7 @@ function animateSprites () {
     if (sprites[i].x <= (0 - spritesheetFrameWidth * 2)) { // Player 2 scores!
       sprites[spriteCount - 1].destroy()
       spriteCount--
-      window.cancelAnimationFrame(animationloop) // this stops the animation loop
+      // window.cancelAnimationFrame(animationloop) // this stops the animation loop
       p2score ++
       $('#gamestatus').text('P1: ' + p1score + '  P2: ' + p2score)
       isGameOver()
@@ -226,7 +226,7 @@ function animateSprites () {
     if (sprites[i].x >= frameWidth) { // Player 1 scores!
       sprites[spriteCount - 1].destroy()
       spriteCount--
-      window.cancelAnimationFrame(animationloop)
+      // window.cancelAnimationFrame(animationloop)
       p1score++
       $('#gamestatus').text('P1: ' + p1score + '  P2: ' + p2score)
       isGameOver()

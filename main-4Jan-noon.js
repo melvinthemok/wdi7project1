@@ -24,6 +24,11 @@ console.log('Sprite count at start of game: ' + spriteCount)
 // paddle angular response --> specific check when ball enters range of paddle length
 var paddleSegment = [0, 0, 0, 0, 0 ,0, 0, 0] //
 var paddleSegmentHeight = Math.round(paddleHeight/(paddleSegment.length))  // length of each segment
+console.log(paddleSegmentHeight);
+
+// paddleSegment.forEach(function (value, index) {
+//   console.log(paddleSegment.indexOf(value, index++))
+// })
 
 // dynamic net position
 $('#net').css({'top': 0 , 'left': (frameWidth / 2 + framePadding)})
@@ -35,16 +40,16 @@ $(document).keydown(function(e) {
     paddle1Y -= 30;
     $('#paddle1').css('webkitTransform', 'translate(0px, '+ paddle1Y +'px)');
     console.log('paddle1 is moving up ' + paddle1Y + 'px');
-    if (paddle1Y < -(frameHeight/2) + 90) {
-        paddle1Y = -(frameHeight/2) + 90
+    if (paddle1Y < -(frameHeight/2) + 185) {
+        paddle1Y = -(frameHeight/2) + 185
     }
   }
   else if (keycode === 83) { // s key
     paddle1Y += 30;
     $('#paddle1').css('webkitTransform', 'translate(0px, '+ paddle1Y +'px)');
     console.log('paddle1 is moving down ' + paddle1Y  + 'px');
-    if (paddle1Y > (frameHeight/2) - 90) {
-      paddle1Y = (frameHeight/2) - 90
+    if (paddle1Y > (frameHeight/2) - 185) {
+      paddle1Y = (frameHeight/2) - 185
     }
   }
   else if (keycode === 38) { // up arrow key
@@ -63,8 +68,8 @@ $(document).keydown(function(e) {
         paddle2Y = (frameHeight/2) - 90
     }
   } else if (keycode === 32) { // space bar
-    // toggle(wasSpaceBarPressed)
-    reset()
+    toggle(wasSpaceBarPressed)
+    // reset()
   }
 })
 
@@ -123,8 +128,8 @@ function SpriteCreate (parentElement) {
   this.x = (frameWidth / 2 + framePadding) - spritesheetFrameWidth / 2
   this.y = (frameHeight / 2 + framePadding) - spritesheetFrameHeight / 2
   this.reposition()
-  this.xSpeed = Math.round(Math.random() * 2 +1) * -1
-  this.ySpeed = Math.round(Math.random() * 2 ) * randomDir()
+  this.xSpeed = Math.round(Math.random() * 4 +2) * -1
+  this.ySpeed = Math.round(Math.random() * 4 ) * randomDir()
   // below 2 lines provide new sprite with a random speed, direction and angle (currently: 90 deg)
 	// this.xSpeed = Math.round(Math.random() * 8 + 2) * randomDir()
 	// this.ySpeed = Math.round(Math.random() * 8 + 2) * randomDir()
@@ -135,10 +140,10 @@ function SpriteCreate (parentElement) {
 }
 
 // Spritesheet specs: all sprite frames stored in this spritesheet.
-var spritesheetWidth = 300;
-var spritesheetHeight = 138;
-var spritesheetFrameWidth = 50;
-var spritesheetFrameHeight = 46;
+var spritesheetWidth = 77;
+var spritesheetHeight = 76;
+var spritesheetFrameWidth = 25.6;
+var spritesheetFrameHeight = 25.3;
 var spritesheetXFrames = spritesheetWidth / spritesheetFrameWidth
 var spritesheetYFrames = spritesheetHeight / spritesheetFrameHeight
 var spritesheetFrames = spritesheetXFrames * spritesheetYFrames;
@@ -191,26 +196,25 @@ function animateSprites () {
     if (sprites[i].x < framePadding + paddleWidth) {
       if (sprites[i].x > framePadding) { // to prevent sprite from getting trapped between frame and paddle1
         paddleSegment.forEach(function (value, index) { // y coordinate range of each paddleSegment
-          if ((sprites[i].y > (paddle1Y + (paddleSegmentHeight * paddleSegment.indexOf(value)) + framePadding + paddleAndSpriteOffset))) {
-            console.log(paddleSegment.indexOf(value)); ---> WHY DIS???? 
-            if (sprites[i].y < (paddle1Y + (paddleSegmentHeight * (paddleSegment.indexOf(value)+1)) + framePadding + spritesheetFrameHeight + paddleAndSpriteOffset)) {
-              console.log('bottom of y segment being checked');
-              if (paddleSegment.indexOf(value) === 0 || 7) { // 15 deg bounce
+          if ((sprites[i].y > (paddle1Y + (paddleSegmentHeight * index) + framePadding + paddleAndSpriteOffset))) {
+            if (sprites[i].y < (paddle1Y + (paddleSegmentHeight * (index+1)) + framePadding + spritesheetFrameHeight + paddleAndSpriteOffset)) {
+              console.log(index, paddle1Y + (paddleSegmentHeight * index) + framePadding + paddleAndSpriteOffset);
+              if (index === 0 || 7) { // 15 deg bounce
                 console.log('15 deg bounce ');
                 sprites[i].ySpeed = sprites[i].ySpeed
                 sprites[i].xSpeed = -6 * sprites[i].xSpeed
               }
-              if (paddleSegment.indexOf(value) === 1 || 6) { // 30 deg bounce
+              else if (index === 1 || 6) { // 30 deg bounce
                 console.log('30 deg bounce ');
                 sprites[i].ySpeed = sprites[i].ySpeed
                 sprites[i].xSpeed = -3 * sprites[i].xSpeed
               }
-              if (paddleSegment.indexOf(value) === 2 || 5) { // 60 deg bounce
+              else if (index === 2 || 5) { // 60 deg bounce
                 console.log('60 deg bounce ');
                 sprites[i].ySpeed = 3 * sprites[i].ySpeed
                 sprites[i].xSpeed = -1 * sprites[i].xSpeed
               }
-              if (paddleSegment.indexOf(value) === 3 || 4) { // 90 deg bounce
+              else if (index === 3 || 4) { // 90 deg bounce
                 console.log('90 deg bounce ');
                 sprites[i].ySpeed = sprites[i].ySpeed
                 sprites[i].xSpeed = -1 * sprites[i].xSpeed
@@ -312,7 +316,7 @@ function reset () {
 // LEVEL 2 OF GAME when either player wins and continues to play, call this function. SetInterval (maybeAddSprite, every 20 secs? )
 function maybeAddSprite () {
   if (randomizer() > 8) {
-    sprites[spriteCount] = new SpriteCreate()
+    sprites[spriteCount] = new SpriteCreate() // reset() should work here...
     spriteCount++
   } else {
     return false

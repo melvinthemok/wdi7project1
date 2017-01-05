@@ -1,5 +1,5 @@
 body {
-  background-color: black;
+  background-color: orange;
 }
 
 #game {
@@ -20,15 +20,15 @@ body {
 }
 
 #gamestatus {
-  font-size: 3vmin;
+  font-size: 2.5vmin;
   margin: 0.5em;
 }
 
 #gameCourt {
-  height:70vh;
-  width: 60vw;
+  height: 500px;
+  width: 900px;
   background-color: white;
-  border: 1px solid black;
+  border: 1px solid green;
   padding: 5px;
   position: relative;
   box-sizing: border-box;
@@ -36,31 +36,35 @@ body {
 }
 
 #net {
-  height: 70vh;
-  width: 1px;
+  height:600px;
+  width: 2px;
   background-color: rgba(0,0,0,0.5);
   position: absolute;
 }
 
 .sprite {
-  width: 50px;
-  height: 46px;
-  border: 1px solid black;
-  /*border-radius: 50%;*/
-  background-image: url(./spriteImage/allcups-resized-trans2.png);
   position: absolute;
+  width: 25.6px;
+  height: 25.3px;
+  border: 1px solid black;
+  border-radius: 50%;
+  background-image: url(./spriteImage/marbles-77x77.png);
 }
 
-.paddlespace {
-  height:100%;
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+#paddle1 {
+  position: absolute;
+  height: 200px;
+  width: 10px;
+  background-color: green;
 }
 
-#paddle1, #paddle2 {
-  height: 15vh;
-  width: 1vw;
-  background-color: black;
+#paddle2 {
+  position: absolute;
+  height: 200px;
+  width: 10px;
+  background-color: green;
 }
+
+/*.paddlespace {
+  position:absolute;
+}*/
