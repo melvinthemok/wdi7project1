@@ -30,9 +30,6 @@ Each player scores a point when its opponent is unable to return the ball.
 Whoever secures 5 points first is the winner for that level.
 
 
-## Tests
-
-
 ## Live Version
 
 [Github](https://github.com/olico852/wdi7project1)
@@ -53,4 +50,4 @@ Olivia Chung
 
 I wanted to make an animated game not utilising HTML5 Canvas. This article inspired me to try out sprite sheets and was a very useful starting point http://buildnewgames.com/dom-sprites/
 
-My amazing WDI 7 classmates who encouraged and helped me along the way.
+My WDI 7 classmates and instructors who encouraged and helped me along the way.
